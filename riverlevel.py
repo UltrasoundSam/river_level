@@ -11,14 +11,20 @@ def river_level(station_id='L2406'):
         (dt, level) - Tuple (date of measurement, river level)
     '''
     # Format URL and get data
-    requrl = 'https://environment.data.gov.uk/flood-monitoring/id/stations/{0}/measures'.format(station_id)
+    requrl = 'https://environment.data.gov.uk/flood-monitoring/id/stations/{0}'.format(station_id)
     payload = requests.get(requrl).json()
-    
+
     # Collect data
-    data = payload['items'][0]['latestReading']
-    level = data['value']
-    
+    data = payload['items']['measures'][1]['latestReading']
+    Curlevel = data['value']
+    FloodLevel = payload['items']['stageScale']['typicalRangeHigh']
+
+    if Curlevel >= FloodLevel:
+        inFlood = 1
+    else:
+        inFlood = 0
+
     # Read timestamp
     datestr = "%Y-%m-%dT%H:%M:%S%z"
     dt = datetime.strptime(data['dateTime'], datestr)
-    return (dt, level)
+    return (dt, Curlevel, inFlood)

@@ -4,6 +4,9 @@ class Database:
     ''' Class for interacting with the database set up to store river level
     information.
 
+    Used a lot of ideas from the excellent blog "Hackers and Slackers
+    here: https://hackersandslackers.com/using-pymysql
+
     '''
     def __init__(self, config):
         '''
