@@ -20,7 +20,7 @@ def river_level(since, station_id='L2406'):
     FloodLevel = flood['items']['stageScale']['typicalRangeHigh']
 
     # Format URL and get data
-    requrl = 'https://environment.data.gov.uk/flood-monitoring/id/stations/{0}/readings?_sorted&since={1}'.format(station_id, since.strftime(datestr))
+    requrl = 'https://environment.data.gov.uk/flood-monitoring/id/stations/{0}/readings?_sorted&since={1}Z'.format(station_id, since.strftime(datestr))
     payload = requests.get(requrl).json()
 
     Measures = []
