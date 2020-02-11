@@ -4,7 +4,7 @@ from riverlevel import river_level
 import datetime
 import os
 
-def warning_mail():
+def warning_mail(h):
     '''
     Sends warning email to me when the path is flooded using mail
     server on Pi
@@ -13,7 +13,7 @@ def warning_mail():
     to_addr = os.environ.get('EMAIL_TO')
     
     # Construct command-line message
-    cmd = 'echo "The path is currently flooded" | mail -s "Flood Alert" {0}'.format(to_addr)
+    cmd = 'echo "The path is currently flooded and the river level is at {0:.2f} m" | mail -s "Flood Alert" {1}'.format(h ,to_addr)
     
     # Send it off to OS
     os.popen(cmd)
@@ -36,6 +36,7 @@ send_mail = False
 for h, dt, inFlood in Measures:
     if h >= path_flood:
         path_closed = 1
+        flood_level = h
         # Dont want to send multiple emails if we have a large 
         send_mail = True
     else:
@@ -46,4 +47,4 @@ for h, dt, inFlood in Measures:
     db.run_query(sql_data_query.format(dt.strftime('%Y-%m-%d %H:%M:%S'), h, inFlood, path_closed))
 
 if send_mail:
-    warning_mail()
+    warning_mail(flood_level)
