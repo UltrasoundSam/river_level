@@ -31,12 +31,12 @@ db = Database(Config)
 latest_query = "SELECT MAX(DateTime) from height"
 latest = db.run_query(latest_query)[0][0] + datetime.timedelta(minutes=5)
 
-# Check last 2 hours of data to see whether already in flood
-checkdate = datetime.datetime.now() - datetime.timedelta(hours=2)
-checkdate_fmt = checkdate.strftime('%Y-%m-%d %H:%M:%S')
-path_query = "SELECT path_closed FROM height WHERE DateTime > '{0}'".format(checkdate_fmt)
+# Check last 8 measurements to see if path was previously flooded
+path_query = "SELECT path_closed FROM height ORDER BY id DESC LIMIT 8"
 path_close = db.run_query(path_query)
 prev_flood = (1,) in path_close
+print(path_close)
+
 
 # Get new River level measurements (and reverse order so latest is first)
 Measures = river_level(since=latest)[::-1]
@@ -54,7 +54,8 @@ for h, dt, inFlood in Measures:
         send_flood_mail = True
     else:
         path_closed = 0
-        if prev_flood:
+        # Check to see if path was previously flooded
+        if prev_close[0][0]:
             send_drop_mail = True
             flood_level = h
 
@@ -67,4 +68,5 @@ if send_flood_mail:
     if not prev_flood:
         warning_mail(flood_level, flood=True)
 elif send_drop_mail:
+    # Send email out to say that the path is nolonger flooded
     warning_mail(flood_level, flood=False)
