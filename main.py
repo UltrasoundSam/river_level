@@ -55,7 +55,7 @@ for h, dt, inFlood in Measures:
     else:
         path_closed = 0
         # Check to see if path was previously flooded
-        if prev_close[0][0]:
+        if path_close[0][0]:
             send_drop_mail = True
             flood_level = h
 
