@@ -35,8 +35,6 @@ latest = db.run_query(latest_query)[0][0] + datetime.timedelta(minutes=5)
 path_query = "SELECT path_closed FROM height ORDER BY id DESC LIMIT 8"
 path_close = db.run_query(path_query)
 prev_flood = (1,) in path_close
-print(path_close)
-
 
 # Get new River level measurements (and reverse order so latest is first)
 Measures = river_level(since=latest)[::-1]
