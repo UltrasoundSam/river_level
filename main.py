@@ -9,7 +9,7 @@ def warning_mail(h, flood):
     Sends warning email to me when the path is flooded using mail
     server on Pi
     Inputs:
-        h           -   River levvel
+        h           -   River level
         flood       -   Boolean to say if path is flooded
     '''
     # Get email to send alert to (in enviroment variables
@@ -17,9 +17,9 @@ def warning_mail(h, flood):
 
     if flood:
         # Construct command-line message
-        cmd = 'echo "The path is currently flooded and the river level is at {0:.2f} m" | mail -s "Flood Alert" {1}'.format(h ,to_addr)
+        cmd = 'echo -e "Subject: Flood Warning\r\n\r\nThe path is currently flooded and the river level is at {0:.2f} m" | msmtp {1}'.format(h ,to_addr)
     else:
-        cmd = 'echo "The path should have cleared - The river level is at {0:.2f} m" | mail -s "Flood Alert" {1}'.format(h ,to_addr)
+        cmd = 'echo -e "Subject: Flood Update\r\n\r\nThe path should have cleared - The river level is at {0:.2f} m" | msmtp {1}'.format(h ,to_addr)
 
     # Send it off to OS
     os.popen(cmd)
@@ -66,5 +66,5 @@ if send_flood_mail:
     if not prev_flood:
         warning_mail(flood_level, flood=True)
 elif send_drop_mail:
-    # Send email out to say that the path is nolonger flooded
+    # Send email out to say that the path is no longer flooded
     warning_mail(flood_level, flood=False)
