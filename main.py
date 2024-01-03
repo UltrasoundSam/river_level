@@ -4,7 +4,8 @@ from riverlevel import river_level
 import datetime
 import os
 
-def warning_mail(h, flood):
+
+def warning_mail(h: float, flood: bool) -> None:
     '''
     Sends warning email to me when the path is flooded using mail
     server on Pi
@@ -17,12 +18,13 @@ def warning_mail(h, flood):
 
     if flood:
         # Construct command-line message
-        cmd = 'echo -e "Subject: Flood Warning\r\n\r\nThe path is currently flooded and the river level is at {0:.2f} m" | msmtp {1}'.format(h ,to_addr)
+        cmd = f'echo -e "Subject: Flood Warning\r\n\r\nThe path is currently flooded and the river level is at {h:.2f} m" | msmtp {to_addr}'
     else:
-        cmd = 'echo -e "Subject: Flood Update\r\n\r\nThe path should have cleared - The river level is at {0:.2f} m" | msmtp {1}'.format(h ,to_addr)
+        cmd = f'echo -e "Subject: Flood Update\r\n\r\nThe path should have cleared - The river level is at {h:.2f} m" | msmtp {to_addr}'
 
     # Send it off to OS
     os.popen(cmd)
+
 
 # Initial database with config values
 db = Database(Config)
@@ -61,6 +63,7 @@ for h, dt, inFlood in Measures:
 
     db.run_query(sql_data_query.format(dt.strftime('%Y-%m-%d %H:%M:%S'), h, inFlood, path_closed))
 
+# Now we have dealt with backlog, and send emails if needed
 if send_flood_mail:
     # River is in flood, but only send mail if it has only just flooded
     if not prev_flood:

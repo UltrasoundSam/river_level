@@ -1,7 +1,10 @@
 import requests
 from datetime import datetime
+from urllib.parse import urljoin
 
-def river_level(since, station_id='L2406'):
+
+def river_level(since: datetime,
+                station_id: str = 'L2406') -> list[float, float, float]:
     '''
     Function that calls the Environment Agency's API to get instanteous
     measurement of river levels at its numerous recording stations.
@@ -9,18 +12,24 @@ def river_level(since, station_id='L2406'):
         since       - Datetime object to record all measurements since
         station_id  - Unique Station ID (defaults to Viking Recorder)
     Output:
-        (dt, level, inflood) - List of Tuples (date of measurement, river level)
+        (dt, level, inflood) - List of Tuples (date of measurement,
+                                               river level)
     '''
     # Datetime format
     datestr = "%Y-%m-%dT%H:%M:%S%z"
 
+    # Define base url
+    base_url = 'https://environment.data.gov.uk/flood-monitoring/id/stations/'
+
     # Find out Flood level
-    maxurl = 'https://environment.data.gov.uk/flood-monitoring/id/stations/{0}'.format(station_id)
+    maxurl = urljoin(base_url, station_id)
     flood = requests.get(maxurl).json()
     FloodLevel = flood['items']['stageScale']['typicalRangeHigh']
 
     # Format URL and get data
-    requrl = 'https://environment.data.gov.uk/flood-monitoring/id/stations/{0}/readings?_sorted&_limit=5000&since={1}Z'.format(station_id, since.strftime(datestr))
+    since_str = since.strftime(datestr)
+    req_str = f'{station_id}/readings?_sorted&_limit=5000&since={since_str}Z'
+    requrl = urljoin(base_url, req_str)
     payload = requests.get(requrl).json()
 
     Measures = []
