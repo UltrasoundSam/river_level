@@ -1,4 +1,6 @@
 import pymysql
+from .config import Config
+
 
 class Database:
     ''' Class for interacting with the database set up to store river level
@@ -8,7 +10,7 @@ class Database:
     here: https://hackersandslackers.com/using-pymysql
 
     '''
-    def __init__(self, config):
+    def __init__(self, config: Config):
         '''
 
         '''
@@ -33,7 +35,7 @@ class Database:
         except pymysql.MySQLError:
             print('Unable to connect to database')
 
-    def run_query(self, query):
+    def run_query(self, query: str):
         ''' Executes SQL query '''
         try:
             self.open_connection()
@@ -62,4 +64,3 @@ class Database:
             if self.conn:
                 self.conn.close()
                 self.conn = None
-
