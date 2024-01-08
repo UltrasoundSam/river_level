@@ -19,11 +19,11 @@ def warning_mail(h: float, flood: bool) -> None:
     if flood:
         # Construct command-line message
         msg = f'The path is currently flooded and the level is at {h:.2f} m'
-        line1 = f'echo -e "{msg}"'
+        line1 = f'echo "{msg}"'
         line2 = f'mail -s "Flood Warning" {to_addr}'
     else:
         msg = f'The path should have cleared - the level is at {h:.2f} m'
-        line1 = f'echo -e "{msg}"'
+        line1 = f'echo "{msg}"'
         line2 = f'mail -s "Flood Update" {to_addr}'
 
     # Create fulle command
@@ -54,14 +54,14 @@ def main():
         prev_flood = False
 
     # Get new River level measurements (and reverse order so latest is first)
-    Measures = river_level(since=latest)[::-1]
+    measures = river_level(since=latest)[::-1]
 
     # Path is inpassable if river level > 3.6 m
     path_flood = 3.6
     send_flood_mail = False
     send_drop_mail = False
 
-    for h, dt, inFlood in Measures:
+    for h, dt, inFlood in measures:
         if h >= path_flood:
             path_closed = 1
             flood_level = h
