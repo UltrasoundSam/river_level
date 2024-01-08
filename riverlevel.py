@@ -24,26 +24,26 @@ def river_level(since: datetime,
     # Find out Flood level
     maxurl = urljoin(base_url, station_id)
     flood = requests.get(maxurl).json()
-    FloodLevel = flood['items']['stageScale']['typicalRangeHigh']
+    floodlevel = flood['items']['stageScale']['typicalRangeHigh']
 
     # Format URL and get data
     since_str = since.strftime(datestr)
-    req_str = f'{station_id}/readings?_sorted&_limit=5000&since={since_str}Z'
+    req_str = f'{station_id}/readings?_sorted&_limit=9999&since={since_str}Z'
     requrl = urljoin(base_url, req_str)
     payload = requests.get(requrl).json()
 
-    Measures = []
+    measures = []
     for item in payload['items']:
         # Get current river level and time of measurement
-        Curlevel = item['value']
+        curlevel = item['value']
         dt = datetime.strptime(item['dateTime'], datestr)
 
         # Check to see if river is currently in flood
-        if Curlevel >= FloodLevel:
+        if curlevel >= floodlevel:
             inFlood = 1
         else:
             inFlood = 0
 
-        Measures.append((Curlevel, dt, inFlood))
+        measures.append((curlevel, dt, inFlood))
 
-    return Measures
+    return measures

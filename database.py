@@ -1,5 +1,5 @@
 import pymysql
-from .config import Config
+from config import Config
 
 
 class Database:
@@ -26,13 +26,13 @@ class Database:
         ''' Manages connection to database '''
         try:
             if self.conn is None:
-                self.conn = pymysql.connect(self.host,
+                self.conn = pymysql.connect(host=self.host,
                                             user=self.username,
                                             passwd=self.password,
-                                            db=self.dbname,
+                                            database=self.dbname,
                                             connect_timeout=5)
 
-        except pymysql.MySQLError:
+        except (pymysql.MySQLError, pymysql.err.OperationalError):
             print('Unable to connect to database')
 
     def run_query(self, query: str):
