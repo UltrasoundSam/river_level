@@ -18,9 +18,16 @@ def warning_mail(h: float, flood: bool) -> None:
 
     if flood:
         # Construct command-line message
-        cmd = f'echo -e "Subject: Flood Warning\r\n\r\nThe path is currently flooded and the river level is at {h:.2f} m" | msmtp {to_addr}'
+        msg = f'The path is currently flooded and the level is at {h:.2f} m'
+        line1 = f'echo -e "{msg}"'
+        line2 = f'mail -s "Flood Warning" {to_addr}'
     else:
-        cmd = f'echo -e "Subject: Flood Update\r\n\r\nThe path should have cleared - The river level is at {h:.2f} m" | msmtp {to_addr}'
+        msg = f'The path should have cleared - the level is at {h:.2f} m'
+        line1 = f'echo -e "{msg}"'
+        line2 = f'mail -s "Flood Update" {to_addr}'
+
+    # Create fulle command
+    cmd = ' | '.join((line1, line2))
 
     # Send it off to OS
     os.popen(cmd)
@@ -32,12 +39,19 @@ def main():
 
     # Find when the last measurement in database was taken
     latest_query = "SELECT MAX(DateTime) from height"
-    latest = db.run_query(latest_query)[0][0] + datetime.timedelta(minutes=5)
+    try:
+        latest = db.run_query(latest_query)[0][0] \
+                + datetime.timedelta(minutes=5)
 
-    # Check last 8 measurements to see if path was previously flooded
-    path_query = "SELECT path_closed FROM height ORDER BY id DESC LIMIT 8"
-    path_close = db.run_query(path_query)
-    prev_flood = (1,) in path_close
+        # Check last 8 measurements to see if path was previously flooded
+        path_query = "SELECT path_closed FROM height ORDER BY id DESC LIMIT 8"
+        path_close = db.run_query(path_query)
+        prev_flood = (1,) in path_close
+
+    except TypeError:
+        # Database is currently empty - let's go back as far as possible
+        latest = datetime.datetime.now() - datetime.timedelta(weeks=52)
+        prev_flood = False
 
     # Get new River level measurements (and reverse order so latest is first)
     Measures = river_level(since=latest)[::-1]
@@ -62,7 +76,8 @@ def main():
 
         sql_data_query = "INSERT INTO height (DateTime, level, in_Flood, path_closed) VALUES('{0}', '{1}', '{2}', '{3}')"
 
-        db.run_query(sql_data_query.format(dt.strftime('%Y-%m-%d %H:%M:%S'), h, inFlood, path_closed))
+        db.run_query(sql_data_query.format(dt.strftime('%Y-%m-%d %H:%M:%S'),
+                                           h, inFlood, path_closed))
 
     # Now we have dealt with backlog, and send emails if needed
     if send_flood_mail:
