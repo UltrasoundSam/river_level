@@ -10,7 +10,7 @@ class Database:
     here: https://hackersandslackers.com/using-pymysql
 
     '''
-    def __init__(self, config: Config):
+    def __init__(self, config: Config) -> None:
         '''
 
         '''
@@ -22,7 +22,7 @@ class Database:
         self.dbname = config.db_name
         self.conn = None
 
-    def open_connection(self):
+    def open_connection(self) -> None:
         ''' Manages connection to database '''
         try:
             if self.conn is None:
@@ -35,7 +35,7 @@ class Database:
         except (pymysql.MySQLError, pymysql.err.OperationalError):
             print('Unable to connect to database')
 
-    def run_query(self, query: str):
+    def run_query(self, query: str) -> None:
         ''' Executes SQL query '''
         try:
             self.open_connection()
