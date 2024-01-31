@@ -40,13 +40,17 @@ def main():
     # Find when the last measurement in database was taken
     latest_query = "SELECT MAX(DateTime) from height"
     try:
-        latest = db.run_query(latest_query)[0][0] \
-                + datetime.timedelta(minutes=5)
+        latest = db.run_query(latest_query)[0][0] - \
+                 datetime.timedelta(minutes=5)
 
-        # Check last 8 measurements to see if path was previously flooded
-        path_query = "SELECT path_closed FROM height ORDER BY id DESC LIMIT 8"
+        # Checks to see if path was previously flooded
+        date_str = latest.strftime(r'%Y-%m-%d %H:%M:%S')
+        path_query = f"SELECT path_closed FROM height WHERE DateTime > '{date_str}'"  # noqa: E501
         path_close = db.run_query(path_query)
         prev_flood = (1,) in path_close
+
+        # Add 10 minutes to avoid getting repeat queries
+        latest += datetime.timedelta(minutes=10)
 
     except TypeError:
         # Database is currently empty - let's go back as far as possible
@@ -74,7 +78,7 @@ def main():
                 send_drop_mail = True
                 flood_level = h
 
-        sql_data_query = "INSERT INTO height (DateTime, level, in_Flood, path_closed) VALUES('{0}', '{1}', '{2}', '{3}')"
+        sql_data_query = "INSERT INTO height (DateTime, level, in_Flood, path_closed) VALUES('{0}', '{1}', '{2}', '{3}')"  # noqa: E501
 
         db.run_query(sql_data_query.format(dt.strftime('%Y-%m-%d %H:%M:%S'),
                                            h, inFlood, path_closed))
