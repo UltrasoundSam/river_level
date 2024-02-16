@@ -1,4 +1,6 @@
 import pymysql
+import typing
+
 from config import Config
 
 
@@ -35,7 +37,7 @@ class Database:
         except (pymysql.MySQLError, pymysql.err.OperationalError):
             print('Unable to connect to database')
 
-    def run_query(self, query: str) -> None:
+    def run_query(self, query: str) -> typing.Union[None, str, list]:
         ''' Executes SQL query '''
         try:
             self.open_connection()
