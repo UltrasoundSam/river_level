@@ -1,36 +1,9 @@
+import datetime
+
 from config import Config
 from database import Database
 from riverlevel import river_level
-import datetime
-import os
-
-
-def warning_mail(h: float, flood: bool) -> None:
-    '''
-    Sends warning email to me when the path is flooded using mail
-    server on Pi
-    Inputs:
-        h           -   River level
-        flood       -   Boolean to say if path is flooded
-    '''
-    # Get email to send alert to (in enviroment variables
-    to_addr = os.environ.get('EMAIL_TO')
-
-    if flood:
-        # Construct command-line message
-        msg = f'The path is currently flooded and the level is at {h:.2f} m'
-        line1 = f'echo "{msg}"'
-        line2 = f'mail -s "Flood Warning" {to_addr}'
-    else:
-        msg = f'The path should have cleared - the level is at {h:.2f} m'
-        line1 = f'echo "{msg}"'
-        line2 = f'mail -s "Flood Update" {to_addr}'
-
-    # Create fulle command
-    cmd = ' | '.join((line1, line2))
-
-    # Send it off to OS
-    os.popen(cmd)
+from mail import warning_mail
 
 
 def main():
